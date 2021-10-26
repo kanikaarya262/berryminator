@@ -15,7 +15,7 @@
 *****************************************************************************************
 '''
 
-# Team ID:			eYRC#BM#2586
+# Team ID:			[ Team-ID ]
 # Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
 # Filename:			task_1a.py
 # Functions:		detect_shapes
@@ -64,14 +64,49 @@ def detect_shapes(img):
 	shapes = detect_shapes(img)
 	"""    
 	detected_shapes = []
+	img1 = cv2.imread(img)
+	img1gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+	ret, thresh = cv2.threshold(img1gray,150,255,cv2.THRESH_BINARY)
+	cont , hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	for i in range(1,len(cont)):
+		li1=[shape,(cx,cy)]
+		Cent = cv2.moments(cont[i])
+		cx =int(Cent["m10"]/Cent["m00"])
+		cy =int(Cent["m01"]/Cent["m00"])
+		app = cv2.approxPolyDP(cont[i],0.01*cv2.arcLength(cont[i],True),True)
+		if len(app) == 3:
+			shape = 'Triangle'
+		elif len(app)==4:
+			(x,y,a,b)=cv2.boundingRect(app)
+			if(a/b==1):
+				shape="Square"
+			else:
+				shape = "Rectangle"
 
-	##############	ADD YOUR CODE HERE	##############
+			
+		elif len(app)==5:
+			shape = 'pentagon'
 
+		elif len(app)==6:
+			shape = 'Hexagon'
+		else: 
+			shape ='Circle'
+		detected_shapes.append(li1)
+
+
+	 
+
+	
+
+
+		  
+
+	
 	
 	 
 
 
-	##################################################
+	
 	
 	return detected_shapes
 
@@ -139,7 +174,7 @@ if __name__ == '__main__':
 	
 	if choice == 'y':
 
-		for file_num in range(1, 15):
+		for file_num in range(1, 16):
 			
 			# path to test image file
 			img_file_path = img_dir_path + 'test_image_' + str(file_num) + '.png'
@@ -159,5 +194,3 @@ if __name__ == '__main__':
 			cv2.imshow("labeled_image", img)
 			cv2.waitKey(2000)
 			cv2.destroyAllWindows()
-
-
