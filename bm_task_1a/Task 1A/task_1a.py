@@ -66,7 +66,7 @@ def detect_shapes(img):
 	detected_shapes = []
 	img1 = cv2.imread(img)
 	img1gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-	ret, thresh = cv2.threshold(img1gray,150,255,cv2.THRESH_BINARY)
+	ret, thresh = cv2.threshold(img1gray,180,255,cv2.THRESH_BINARY)
 	cont , hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	for i in range(1,len(cont)):
 		li1=[shape,(cx,cy)]
