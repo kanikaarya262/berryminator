@@ -64,6 +64,10 @@ def detect_shapes(img):
 	shapes = detect_shapes(img)
 	"""    
 	detected_shapes = []
+	blue=np.where((img == [255,0,0]).all(axis = 2))
+        green=np.where((img == [0,255,0]).all(axis = 2))
+        red=np.where((img == [0,0,255]).all(axis = 2))
+        orange=np.where((img==[0,165,255]).all(axis=2))
 	img1 = cv2.imread(img)
 	img1gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 	ret, thresh = cv2.threshold(img1gray,180,255,cv2.THRESH_BINARY)
@@ -73,6 +77,14 @@ def detect_shapes(img):
 		Cent = cv2.moments(cont[i])
 		cx =int(Cent["m10"]/Cent["m00"])
 		cy =int(Cent["m01"]/Cent["m00"])
+		if cy in blue[0] and cx in blue[1]:
+			color='Blue'
+                elif cy in green[0] and cx in green[1]:
+                       color='Green'
+                elif cy in red[0] and cx in red[1]:
+                       color='Red'
+                elif cy in orange[0] and cx in orange[1]:
+			color='Orange'
 		app = cv2.approxPolyDP(cont[i],0.01*cv2.arcLength(cont[i],True),True)
 		if len(app) == 3:
 			shape = 'Triangle'
