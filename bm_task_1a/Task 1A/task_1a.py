@@ -85,7 +85,7 @@ def detect_shapes(img):
                        color='Red'
                 elif cy in orange[0] and cx in orange[1]:
 			color='Orange'
-		app = cv2.approxPolyDP(cont[i],0.01*cv2.arcLength(cont[i],True),True)
+		app = cv2.approxPolyDP(cont[i],0.039*cv2.arcLength(cont[i],True),True)
 		if len(app) == 3:
 			shape = 'Triangle'
 		elif len(app)==4:
