@@ -89,8 +89,8 @@ def detect_shapes(img):
 		if len(app) == 3:
 			shape = 'Triangle'
 		elif len(app)==4:
-			(x,y,a,b)=cv2.boundingRect(app)
-			if(a/b==1):
+			((x,y),(w,h),a)=cv2.minAreaRect(cont[i])
+			if(w/h==1):
 				shape="Square"
 			else:
 				shape = "Rectangle"
