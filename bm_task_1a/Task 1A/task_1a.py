@@ -15,8 +15,8 @@
 *****************************************************************************************
 '''
 
-# Team ID:			eYRC#BM#2586
-# Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
+# Team ID:			[eYRC#BM#2586]
+# Author List:		[ Names of team members worked on this file separated by Comma: Ritika Datar, Kanika Arya, Mokshit Garg,Ankita Panjwani ]
 # Filename:			task_1a.py
 # Functions:		detect_shapes
 # 					[ Comma separated list of functions in this file ]
@@ -68,10 +68,19 @@ def detect_shapes(img):
 	##############	ADD YOUR CODE HERE	##############
 	def detect_shapes(img):
 		detected_shapes=[]
-                blue=np.where((img == [255,0,0]).all(axis = 2))
-                green=np.where((img == [0,255,0]).all(axis =  2))
-                red=np.where((img == [0,0,255]).all(axis = 2))
-                orange=np.where((img==[0,165,255]).all(axis=2))
+                hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV) 
+	        lower_blue = np.array([110,50,50])
+	        upper_blue = np.array([130,255,255])
+	        maskblue = cv2.inRange(hsv, lower_blue, upper_blue)
+	        lower_green = np.array([50,215,215])
+	        upper_green = np.array([70,255,255])
+	        maskgreen = cv2.inRange(hsv, lower_green, upper_green)
+	        lower_red = np.array([0,215,215])
+	        upper_red = np.array([10,255,255])
+	        maskred = cv2.inRange(hsv, lower_red, upper_red)
+	        lower_orange = np.array([8,215,215])
+	        upper_orange = np.array([28,255,255])
+	        maskorange = cv2.inRange(hsv, lower_orange, upper_orange)
                 img1gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
                 ret, thresh = cv2.threshold(img1gray,180,255,cv2.THRESH_BINARY)
                 cv2.imshow("thresholded image",thresh)
@@ -80,14 +89,14 @@ def detect_shapes(img):
 			Cent = cv2.moments(cont[i])
                         cx =int(Cent["m10"]/Cent["m00"])
                         cy =int(Cent["m01"]/Cent["m00"])
-                        if cy in blue[0] and cx in blue[1]:
+                        if maskblue[cy][cx]==255:
 				color='Blue'
-                        elif cy in green[0] and cx in green[1]:
-				color='Green'
-                        elif cy in red[0] and cx in red[1]:
-				color='Red'
-                        elif cy in orange[0] and cx in orange[1]:
-                                color='Orange'
+                        elif maskgreen[cy][cx]==255:
+       			        color='Green'
+        		elif maskred[cy][cx]==255:
+            			color='Red'
+        		elif maskorange[cy][cx]==255:
+            			color='Orange'
                         app = cv2.approxPolyDP(cont[i],0.01*cv2.arcLength(cont[i],True),True)
                         if len(app) == 3:
 				shape = 'Triangle'
