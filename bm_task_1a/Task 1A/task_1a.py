@@ -15,8 +15,8 @@
 *****************************************************************************************
 '''
 
-# Team ID:			eYRC#BM#2586
-# Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
+# Team ID:			[ eYRC#BM#2586 ]
+# Author List:		[ Names of team members worked on this file separated by Comma: Ritika Datar, Kanika Arya,Mokshit Garg, Ankita Pamjwani ]
 # Filename:			task_1a.py
 # Functions:		detect_shapes
 # 					[ Comma separated list of functions in this file ]
@@ -64,14 +64,71 @@ def detect_shapes(img):
 	shapes = detect_shapes(img)
 	"""    
 	detected_shapes = []
+	hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV) 
+        lower_blue = np.array([110,50,50])
+        upper_blue = np.array([130,255,255])
+	maskblue = cv2.inRange(hsv, lower_blue, upper_blue)
+	lower_green = np.array([50,215,215])
+        upper_green = np.array([70,255,255])
+        maskgreen = cv2.inRange(hsv, lower_green, upper_green)
+        lower_red = np.array([0,215,215])
+        upper_red = np.array([10,255,255])
+        maskred = cv2.inRange(hsv, lower_red, upper_red)
+        lower_orange = np.array([8,215,215])
+        upper_orange = np.array([28,255,255])
+        maskorange = cv2.inRange(hsv, lower_orange, upper_orange)
+    
+	img1 = cv2.imread(img)
+	img1gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+	ret, thresh = cv2.threshold(img1gray,180,255,cv2.THRESH_BINARY)
+	cont , hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	for i in range(1,len(cont)):
+		li1=[color,shape,(cx,cy)]
+		Cent = cv2.moments(cont[i])
+		cx =int(Cent["m10"]/Cent["m00"])
+		cy =int(Cent["m01"]/Cent["m00"])
+		if maskblue[cy][cx]==255:
+			color='Blue'
+                elif maskgreen[cy][cx]==255:
+                        color='Green'
+                elif maskred[cy][cx]==255:
+                        color='Red'
+                elif maskorange[cy][cx]==255:
+                        color='Orange'
+		app = cv2.approxPolyDP(cont[i],0.039*cv2.arcLength(cont[i],True),True)
+		if len(app) == 3:
+			shape = 'Triangle'
+		elif len(app)==4:
+			((x,y),(w,h),a)=cv2.minAreaRect(cont[i])
+			if(w/h==1):
+				shape="Square"
+			else:
+				shape = "Rectangle"
 
-	##############	ADD YOUR CODE HERE	##############
+			
+		elif len(app)==5:
+			shape = 'pentagon'
 
+		elif len(app)==6:
+			shape = 'Hexagon'
+		else: 
+			shape ='Circle'
+		detected_shapes.append(li1)
+
+
+	 
+
+	
+
+
+		  
+
+	
 	
 	 
 
 
-	##################################################
+	
 	
 	return detected_shapes
 
@@ -139,7 +196,7 @@ if __name__ == '__main__':
 	
 	if choice == 'y':
 
-		for file_num in range(1, 15):
+		for file_num in range(1, 16):
 			
 			# path to test image file
 			img_file_path = img_dir_path + 'test_image_' + str(file_num) + '.png'
@@ -159,5 +216,3 @@ if __name__ == '__main__':
 			cv2.imshow("labeled_image", img)
 			cv2.waitKey(2000)
 			cv2.destroyAllWindows()
-
-
