@@ -241,6 +241,7 @@ def stop_simulation(client_id):
 	return_code = -2
 
 	##############	ADD YOUR CODE HERE	##############
+	return_code=sim.simxStopSimulation(client_id,sim.simx_opmode_oneshot)
 	
 
 
@@ -273,6 +274,8 @@ def exit_remote_api_server(client_id):
 	"""
 
 	##############	ADD YOUR CODE HERE	##############
+	sim.simxFinish(client_id)
+	
 	
 
 
