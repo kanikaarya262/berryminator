@@ -127,6 +127,7 @@ def start_simulation(client_id):
 	return_code = -2
 
 	##############	ADD YOUR CODE HERE	##############
+	return_code = sim.simxStartSimulation(client_id,sim.simx_opmode_oneshot)
 
 	
 
