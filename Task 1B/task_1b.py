@@ -90,6 +90,8 @@ def init_remote_api_server():
 	client_id = -1
 
 	##############	ADD YOUR CODE HERE	##############
+	sim.simxFinish(-1) # close open connections 
+	client_id=sim.simxStart('127.0.0.1',19999,True,True,5000,5) 
 
 
 
