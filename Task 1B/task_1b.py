@@ -210,6 +210,10 @@ def transform_vision_sensor_image(vision_sensor_image, image_resolution):
 	transformed_image = None
 
 	##############	ADD YOUR CODE HERE	##############
+	transformed_image_1=np.array(vision_sensor_image,dtype=np.uint8)
+	transformed_image_2=np.reshape(image_resolution[0],image_resolution[1],3) 
+	rgbimg=cv2.cvtColor(transformed_image_2, cv2.COLOR_BGR2RGB)
+	transformed_image=cv2.flip(rgbimg, 0)
 
 
 	##################################################
