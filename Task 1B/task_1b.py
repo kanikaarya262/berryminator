@@ -312,7 +312,18 @@ def detect_qr_codes(transformed_image):
 	
 	"""
 
+	
 	qr_codes = []
+	image = cv2.imread(transformed_image)
+	qrdetected = pyzbar.decode(image)
+	for qr in qrdetected:
+		(x,y,w,h) = qr.rect 
+		cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
+		qrdata = qr.data.decode("utf-8")
+		(cX,cY) = (x + (x+w)/2,y+ (y+h)/2)
+		qr_codes.append([qrdata,(cX,cY)])
+
+
 
 
 
