@@ -127,6 +127,7 @@ def start_simulation(client_id):
 	return_code = -2
 
 	##############	ADD YOUR CODE HERE	##############
+	sim.simxGetPingTime(client_id)
 	return_code = sim.simxStartSimulation(client_id,sim.simx_opmode_oneshot)
 
 	
@@ -275,6 +276,7 @@ def exit_remote_api_server(client_id):
 	"""
 
 	##############	ADD YOUR CODE HERE	##############
+	sim.simxGetLastCmdTime(client_id)
 	sim.simxFinish(client_id)
 	
 	
