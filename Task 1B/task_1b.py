@@ -91,7 +91,7 @@ def init_remote_api_server():
 
 	##############	ADD YOUR CODE HERE	##############
 	sim.simxFinish(-1) # close open connections 
-	client_id=sim.simxStart('127.0.0.1',19999,True,True,5000,5) 
+	client_id=sim.simxStart('127.0.0.1',19997,True,True,5000,5)#coppeliasim port =19997 
 
 
 
@@ -168,7 +168,10 @@ def get_vision_sensor_image(client_id):
 	return_code = 0
 
 	##############	ADD YOUR CODE HERE	##############
-
+	_,sensor = sim.simxGetObjectHandle(client_id,'vision_sensor',sim.simx_opmode_blocking)
+	return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_streaming)
+	while(return_code!=0):
+		return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_buffer)
 
 
 	##################################################
@@ -210,10 +213,10 @@ def transform_vision_sensor_image(vision_sensor_image, image_resolution):
 	transformed_image = None
 
 	##############	ADD YOUR CODE HERE	##############
-	transformed_image_1=np.array(vision_sensor_image,dtype=np.uint8)
-	transformed_image_2=np.reshape(image_resolution[0],image_resolution[1],3) 
-	rgbimg=cv2.cvtColor(transformed_image_2, cv2.COLOR_BGR2RGB)
-	transformed_image=cv2.flip(rgbimg, 0)
+	img1=np.array(vision_sensor_image,dtype=np.uint8)
+	img2=np.resize(img1,(image_resolution[1],image_resolution[0],3)) #rows=y
+	img_rgb = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
+	transformed_image=cv2.flip(img_rgb, 0)
 
 
 	##################################################
