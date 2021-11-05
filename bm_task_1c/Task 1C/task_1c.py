@@ -90,6 +90,12 @@ def read_distance_sensor(client_id, sensor_handle):
 	detected = False
 
 	##############	ADD YOUR CODE HERE	##############
+	returnCode,detected,(x,y),detobjhand,surfaceNV=simxReadProximitySensor(client_id,sensor_handle,sim.simx_opmode_streaming)
+	if detected== True:
+		distance = math.sqrt(x**2 + y**2)
+	elif detected==False:
+		distance=-1
+
 
 
 
