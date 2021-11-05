@@ -127,6 +127,33 @@ def control_logic(client_id):
 	"""
 
 	##############  ADD YOUR CODE HERE  ##############
+	_,leftjoint = sim.simxGetObjectHandle(client_id,'left_joint',sim.simx_opmode_blocking)
+	_,rightjoint = sim.simxGetObjectHandle(client_id,'right_joint',sim.simx_opmode_blocking)
+	_,d1 = sim.simxGetObjectHandle(client_id,'distance_sensor_1',sim.simx_opmode_blocking)
+	_,d2 = sim.simxGetObjectHandle(client_id,'distance_sensor_2',sim.simx_opmode_blocking)
+
+	distance1=read_distance_sensor(client_id,d1)
+	distance2=read_distance_sensor(client_id,d2)
+	for i in range(3):
+		while distance1==distance2:
+			sim.simxPauseCommunication(client_id,True)
+			sim.simxSetJointTargetVelocity(client_id,rightjoint,+2.5,sim.simx_opmode_streaming)
+			sim.simxSetJointTargetVelocity(client_id,leftjoint,-2.5,sim.simx_opmode_streaming)
+			sim.simxPauseCommunication(client_id,False)
+	sim.simxPauseCommunication(client_id,True)
+	sim.simxSetJointTargetVelocity(client_id,rightjoint,0,sim.simx_opmode_streaming)
+	sim.simxSetJointTargetVelocity(client_id,leftjoint,0,sim.simx_opmode_streaming)
+	sim.simxPauseCommunication(client_id,False)
+	
+
+
+
+
+
+
+
+
+
 
 
 
