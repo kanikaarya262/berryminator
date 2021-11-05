@@ -137,8 +137,8 @@ def control_logic(client_id):
 	for i in range(3):
 		while distance1==distance2:
 			sim.simxPauseCommunication(client_id,True)
-			sim.simxSetJointTargetVelocity(client_id,rightjoint,+2.5,sim.simx_opmode_streaming)
-			sim.simxSetJointTargetVelocity(client_id,leftjoint,-2.5,sim.simx_opmode_streaming)
+			sim.simxSetJointPosition(client_id,rightjoint,45*math.pi/180,sim.simx_opmode_streaming)
+			sim.simxSetJointPosition(client_id,leftjoint,-45*math.pi/180,sim.simx_opmode_streaming)
 			sim.simxPauseCommunication(client_id,False)
 	sim.simxPauseCommunication(client_id,True)
 	sim.simxSetJointTargetVelocity(client_id,rightjoint,0,sim.simx_opmode_streaming)
