@@ -1,5 +1,5 @@
 '''
-*****************************************************************************************
+*******************************
 *
 *        		===============================================
 *           		Berryminator (BM) Theme (eYRC 2021-22)
@@ -13,7 +13,7 @@
 *  breach of the terms of this agreement.
 *  
 *
-*****************************************************************************************
+*******************************
 '''
 
 # Team ID:			[ Team-ID ]
@@ -102,9 +102,6 @@ def read_distance_sensor(client_id, sensor_handle):
 		distance=-1
 
 
-
-
-
 	##################################################
 	return detected, distance
 
@@ -132,41 +129,50 @@ def control_logic(client_id):
 	"""
 
 	##############  ADD YOUR CODE HERE  ##############
-	_,leftjoint = sim.simxGetObjectHandle(client_id,'left_joint',sim.simx_opmode_blocking)
-	_,rightjoint = sim.simxGetObjectHandle(client_id,'right_joint',sim.simx_opmode_blocking)
-	_,d1 = sim.simxGetObjectHandle(client_id,'distance_sensor_1',sim.simx_opmode_blocking)
-	_,d2 = sim.simxGetObjectHandle(client_id,'distance_sensor_2',sim.simx_opmode_blocking)
-
-	distance1=read_distance_sensor(client_id,d1)
-	distance2=read_distance_sensor(client_id,d2)
-	for i in range(3):
-		while distance1==distance2:
-			sim.simxPauseCommunication(client_id,True)
-			sim.simxSetJointPosition(client_id,rightjoint,45*math.pi/180,sim.simx_opmode_streaming)
-			sim.simxSetJointPosition(client_id,leftjoint,-45*math.pi/180,sim.simx_opmode_streaming)
-			sim.simxPauseCommunication(client_id,False)
+	_,left_wheel = sim.simxGetObjectHandle(client_id,'left_joint',sim.simx_opmode_blocking)
+	_,right_wheel = sim.simxGetObjectHandle(client_id,'right_joint',sim.simx_opmode_blocking)
+	_,sensor1 = sim.simxGetObjectHandle(client_id,'distance_sensor_1',sim.simx_opmode_blocking)
+	_,sensor2 = sim.simxGetObjectHandle(client_id,'distance_sensor_2',sim.simx_opmode_blocking)
+	_,Bot = sim.simxGetObjectHandle(client_id,'Diff_Drive_Bot',sim.simx_opmode_blocking)
+	x = 90*math.pi/180
+	y = x + 10*math.pi/180
 	sim.simxPauseCommunication(client_id,True)
-	sim.simxSetJointTargetVelocity(client_id,rightjoint,0,sim.simx_opmode_streaming)
-	sim.simxSetJointTargetVelocity(client_id,leftjoint,0,sim.simx_opmode_streaming)
+	sim.simxSetJointTargetVelocity(client_id,right_wheel,0.5,sim.simx_opmode_streaming)
+	sim.simxSetJointTargetVelocity(client_id,left_wheel,0.5,sim.simx_opmode_streaming)
 	sim.simxPauseCommunication(client_id,False)
+	time.sleep(2)
+	for i in range(1,5):
+		while (True):
+			_1,d1 = read_distance_sensor(client_id,sensor1)
+			_2,d2 = read_distance_sensor(client_id,sensor2)
+			if( _1==True and _2==True):
+				if ( d1==d2  ):#d1/d2>0.95 and d1/d2<1.05
+						print(d1,d2)
+
+						sim.simxPauseCommunication(client_id,True)
+
+
+						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.5,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,left_wheel,-0.5,sim.simx_opmode_streaming)
+
+
+						sim.simxPauseCommunication(client_id,False)
+					
+
+						_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_streaming)
+						
+						for i in range(10):		
+							_,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
+							print(Orientation)
+						
+						
+						
+						break
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
 	##################################################
 
 	## You are NOT allowed to make any changes in the code below ##
-if __name__ == "__main__":
+if _name_ == "_main_":
 
 	# Initiate the Remote API connection with CoppeliaSim server
 	print('\nConnection to CoppeliaSim Remote API Server initiated.')
