@@ -134,8 +134,8 @@ def control_logic(client_id):
 	_,sensor1 = sim.simxGetObjectHandle(client_id,'distance_sensor_1',sim.simx_opmode_blocking)
 	_,sensor2 = sim.simxGetObjectHandle(client_id,'distance_sensor_2',sim.simx_opmode_blocking)
 	_,Bot = sim.simxGetObjectHandle(client_id,'Diff_Drive_Bot',sim.simx_opmode_blocking)
-	x = 90*math.pi/180
-	y = x + 10*math.pi/180
+	x = math.pi/2 + (math.pi/2)*0.0007
+	y = math.pi/2 - (math.pi/2)*0.0007
 	sim.simxPauseCommunication(client_id,True)
 	sim.simxSetJointTargetVelocity(client_id,right_wheel,0.5,sim.simx_opmode_streaming)
 	sim.simxSetJointTargetVelocity(client_id,left_wheel,0.5,sim.simx_opmode_streaming)
@@ -147,7 +147,7 @@ def control_logic(client_id):
 			_2,d2 = read_distance_sensor(client_id,sensor2)
 			if( _1==True and _2==True):
 				if ( d1==d2  ):#d1/d2>0.95 and d1/d2<1.05
-						print(d1,d2)
+						
 
 						sim.simxPauseCommunication(client_id,True)
 
@@ -164,40 +164,32 @@ def control_logic(client_id):
 						while(_5!=0):
 							_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
 						print(Orientation)
-						
 						sim.simxPauseCommunication(client_id,True)
-						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.5,sim.simx_opmode_streaming)
-						sim.simxSetJointTargetVelocity(client_id,left_wheel,-0.5,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.25,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,left_wheel,-0.25,sim.simx_opmode_streaming)
 						sim.simxPauseCommunication(client_id,False)
-						
 						while(True):
-							if(Orientation==x):
+							if(Orientation[2]>y and Orientation[2]<x):
 								sim.simxPauseCommunication(client_id,True)
-
-
 								sim.simxSetJointTargetVelocity(client_id,right_wheel,0.0,sim.simx_opmode_streaming)
 								sim.simxSetJointTargetVelocity(client_id,left_wheel,0.0,sim.simx_opmode_streaming)
-
-
 								sim.simxPauseCommunication(client_id,False)
 								break
 							else:
 								_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
 								print(Orientation)
-								
 						sim.simxPauseCommunication(client_id,True)
-
-
-						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.0,sim.simx_opmode_streaming)
-						sim.simxSetJointTargetVelocity(client_id,left_wheel,0.0,sim.simx_opmode_streaming)
-
-
+						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.5,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,left_wheel,0.5,sim.simx_opmode_streaming)
 						sim.simxPauseCommunication(client_id,False)		
+
+						
+
+								
 						
 						
 						
 						break
-	
 	##################################################
 
 	## You are NOT allowed to make any changes in the code below ##
