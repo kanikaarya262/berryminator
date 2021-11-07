@@ -152,8 +152,8 @@ def control_logic(client_id):
 						sim.simxPauseCommunication(client_id,True)
 
 
-						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.5,sim.simx_opmode_streaming)
-						sim.simxSetJointTargetVelocity(client_id,left_wheel,-0.5,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.0,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,left_wheel,0.0,sim.simx_opmode_streaming)
 
 
 						sim.simxPauseCommunication(client_id,False)
@@ -161,9 +161,38 @@ def control_logic(client_id):
 
 						_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_streaming)
 						
-						for i in range(10):		
-							_,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
-							print(Orientation)
+						while(_5!=0):
+							_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
+						print(Orientation)
+						
+						sim.simxPauseCommunication(client_id,True)
+						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.5,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,left_wheel,-0.5,sim.simx_opmode_streaming)
+						sim.simxPauseCommunication(client_id,False)
+						
+						while(True):
+							if(Orientation==x):
+								sim.simxPauseCommunication(client_id,True)
+
+
+								sim.simxSetJointTargetVelocity(client_id,right_wheel,0.0,sim.simx_opmode_streaming)
+								sim.simxSetJointTargetVelocity(client_id,left_wheel,0.0,sim.simx_opmode_streaming)
+
+
+								sim.simxPauseCommunication(client_id,False)
+								break
+							else:
+								_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
+								print(Orientation)
+								
+						sim.simxPauseCommunication(client_id,True)
+
+
+						sim.simxSetJointTargetVelocity(client_id,right_wheel,0.0,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,left_wheel,0.0,sim.simx_opmode_streaming)
+
+
+						sim.simxPauseCommunication(client_id,False)		
 						
 						
 						
