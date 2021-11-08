@@ -1,5 +1,5 @@
 '''
-*****************************************************************************************
+*******************************
 *
 *        		===============================================
 *           		Berryminator (BM) Theme (eYRC 2021-22)
@@ -13,7 +13,7 @@
 *  breach of the terms of this agreement.
 *  
 *
-*****************************************************************************************
+*******************************
 '''
 
 # Team ID:			[ Team-ID ]
@@ -90,12 +90,24 @@ def read_distance_sensor(client_id, sensor_handle):
 	detected = False
 
 	##############	ADD YOUR CODE HERE	##############
+	returnCode,detected1,cordinates,detobjhand,surfaceNV=sim.simxReadProximitySensor(client_id,sensor_handle,
+	sim.simx_opmode_streaming)
+	while(returnCode!=0):
+		returnCode,detected1,cordinates,detobjhand,surfaceNV=sim.simxReadProximitySensor(client_id,sensor_handle,
+	sim.simx_opmode_buffer)
+		
 
-
+	if detected1:
+		
+		distance = cordinates[2]	
+		detected = True
+	else:
+		distance = -1
+		detected = False
 
 
 	##################################################
-	return detected, distance
+	return detected, distance,cordinates
 
 
 def control_logic(client_id):
@@ -121,10 +133,64 @@ def control_logic(client_id):
 	"""
 
 	##############  ADD YOUR CODE HERE  ##############
+	_,left_wheel = sim.simxGetObjectHandle(client_id,'left_joint',sim.simx_opmode_blocking)
+	_,right_wheel = sim.simxGetObjectHandle(client_id,'right_joint',sim.simx_opmode_blocking)
+	_,sensor1 = sim.simxGetObjectHandle(client_id,'distance_sensor_1',sim.simx_opmode_blocking)
+	_,sensor2 = sim.simxGetObjectHandle(client_id,'distance_sensor_2',sim.simx_opmode_blocking)
+	_,Bot = sim.simxGetObjectHandle(client_id,'Diff_Drive_Bot',sim.simx_opmode_blocking)
+	x = [math.pi/2 + (math.pi/2)*0.01,math.pi + (math.pi)*0.01,-math.pi/2 + (math.pi/2)*0.01]
+	y = [math.pi/2 - (math.pi/2)*0.01,math.pi - (math.pi)*0.01,-math.pi/2 - (math.pi/2)*0.01]
+	sim.simxPauseCommunication(client_id,True)
+	sim.simxSetJointTargetVelocity(client_id,right_wheel,1,sim.simx_opmode_streaming)
+	sim.simxSetJointTargetVelocity(client_id,left_wheel,1,sim.simx_opmode_streaming)
+	sim.simxPauseCommunication(client_id,False)
+	for i in range(4):
+		while (True):
 
+			_1,d1,l1 = read_distance_sensor(client_id,sensor1)
+			_2,d2 ,l2= read_distance_sensor(client_id,sensor2)
+			if( _1==True and _2==True):
+				if (d1/d2>0.90 and d1/d2<1.10):#d1/d2>0.95 and d1/d2<1.05
+					if(i==3):
+						sim.simxPauseCommunication(client_id,True)
+						sim.simxSetJointTargetVelocity(client_id,right_wheel,0,sim.simx_opmode_streaming)
+						sim.simxSetJointTargetVelocity(client_id,left_wheel,0,sim.simx_opmode_streaming)
+						sim.simxPauseCommunication(client_id,False)
+						break
 
+					
+						
 
+					
+				
 
+					_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_streaming)
+						
+					while(_5!=0):
+						_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
+					
+					sim.simxPauseCommunication(client_id,True)
+					sim.simxSetJointTargetVelocity(client_id,right_wheel,0.25,sim.simx_opmode_streaming)
+					sim.simxSetJointTargetVelocity(client_id,left_wheel,-0.25,sim.simx_opmode_streaming)
+					sim.simxPauseCommunication(client_id,False)
+					while(True):
+						if(Orientation[2]>y[i] and Orientation[2]<x[i]):
+							sim.simxPauseCommunication(client_id,True)
+							sim.simxSetJointTargetVelocity(client_id,right_wheel,0.0,sim.simx_opmode_streaming)
+							sim.simxSetJointTargetVelocity(client_id,left_wheel,0.0,sim.simx_opmode_streaming)
+							sim.simxPauseCommunication(client_id,False)
+							break
+						else:
+							_5,Orientation = sim.simxGetObjectOrientation(client_id,Bot,-1,sim.simx_opmode_buffer)
+					print(Orientation)
+					sim.simxPauseCommunication(client_id,True)
+					sim.simxSetJointTargetVelocity(client_id,right_wheel,1,sim.simx_opmode_streaming)
+					sim.simxSetJointTargetVelocity(client_id,left_wheel,1,sim.simx_opmode_streaming)
+					sim.simxPauseCommunication(client_id,False)	
+					break
+				
+
+	
 	##################################################
 
 	## You are NOT allowed to make any changes in the code below ##
