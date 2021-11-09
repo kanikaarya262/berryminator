@@ -107,7 +107,7 @@ def read_distance_sensor(client_id, sensor_handle):
 
 
 	##################################################
-	return detected, distance,cordinates
+	return detected, distance
 
 
 def control_logic(client_id):
@@ -147,8 +147,8 @@ def control_logic(client_id):
 	for i in range(4):
 		while (True):
 
-			_1,d1,l1 = read_distance_sensor(client_id,sensor1)
-			_2,d2 ,l2= read_distance_sensor(client_id,sensor2)
+			_1,d1 = read_distance_sensor(client_id,sensor1)
+			_2,d2 = read_distance_sensor(client_id,sensor2)
 			if( _1==True and _2==True):
 				if (d1/d2>0.90 and d1/d2<1.10):#d1/d2>0.95 and d1/d2<1.05
 					if(i==3):
