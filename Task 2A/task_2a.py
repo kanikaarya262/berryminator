@@ -294,6 +294,18 @@ def detect_berry_positions(berries_dictionary):
 	berries = ["Strawberry", "Blueberry", "Lemon"]
 
 	##############	ADD YOUR CODE HERE	##############
+	for keys in berries_dictionary.keys():
+		L=berries_dictionary[keys]
+		lmodified=[]
+		for i in L:
+			pix_x=i[0]
+			pix_y=i[1]
+			depth=i[2]
+			C_X=(0.5/256)*(pix_x-256)
+			C_Y=(0.5/256)*(pix_y-256)
+			C_Z=depth*2
+			lmodified.append((C_X,C_Y,C_Z))
+		berry_positions_dictionary[keys]=lmodified
 
 
 
