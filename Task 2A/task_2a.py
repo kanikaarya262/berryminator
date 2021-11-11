@@ -225,8 +225,6 @@ def detect_berries(transformed_image, transformed_depth_image):
 	berries = ["Strawberry", "Blueberry", "Lemon"]
 
 	##############	ADD YOUR CODE HERE	##############
-	berry_positions_dictionary={}
-	numbers=[]
 	hsv = cv2.cvtColor(transformed_image,cv2.COLOR_BGR2HSV)
 	mask_blue = cv2.inRange(hsv,np.array([101, 39, 64]),np.array([140, 255, 255]))
 	mask_yellow = cv2.inRange(hsv,np.array([21, 39, 64]),np.array([40, 255, 255]))
@@ -248,12 +246,10 @@ def detect_berries(transformed_image, transformed_depth_image):
 			print("Not able to detect")
 
 		d = transformed_depth_image[cy][cx]	
-		pix_x=cx-256
-		pix_y=cy-256
-		C_X=(0.5/256)*pix_x
-		C_Y=(0.5/256)*pix_y
-		berry_positions_dictionary[berry]=numbers
-		numbers.append((C_X,C_Y,d))
+		berries_dictionary[berry]=[]
+		berries_dictionary[berry].append((cx,cy,d))
+
+	
 
 		
 	
