@@ -247,8 +247,14 @@ def detect_berries(transformed_image, transformed_depth_image):
 			print("Not able to detect")
 
 		d = transformed_depth_image[cy][cx]	
+		pix_x=cx-256
+		pix_y=cy-256
+		C_X=(0.5/256)*pix_x
+		C_Y=(0.5/256)*pix_y
 		berry_positions_dictionary[berry]=numbers
-		numbers.append((cx,cy,d))
+		numbers.append((C_X,C_Y,d))
+
+		
 	
 	
 
