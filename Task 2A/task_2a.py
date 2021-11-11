@@ -231,22 +231,31 @@ def detect_berries(transformed_image, transformed_depth_image):
 	mask_red = cv2.inRange(hsv, np.array([161, 39, 64]),np.array([180, 255, 255]))
 	img1gray = cv2.cvtColor(transformed_image,cv2.COLOR_BGR2GRAY)
 	ret, thresh = cv2.threshold(img1gray,40,255,cv2.THRESH_BINARY)
+	flag1,flag2,flag3 = 1,1,1
 	cont , hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	for i in range(len(cont)):
 		Cent = cv2.moments(cont[i])
 		cx =int(Cent["m10"]/Cent["m00"])
 		cy =int(Cent["m01"]/Cent["m00"])
 		if mask_blue[cy][cx]==255:
-			berry = berries[1]	
+			berry = berries[1]
+			if(flag1==1):
+					berries_dictionary[berry]= []
+					flag1 = 0
 		elif mask_yellow[cy][cx]==255:
 			berry = berries[2]
+			if(flag2==1):
+					berries_dictionary[berry]= []
+					flag2 = 0
 		elif mask_red[cy][cx]==255:
 			berry = berries[0]
+			if(flag3==1):
+					berries_dictionary[berry]= []
+					flag3 = 0
 		else:
 			print("Not able to detect")
 
 		d = transformed_depth_image[cy][cx]	
-		berries_dictionary[berry]=[]
 		berries_dictionary[berry].append((cx,cy,d))
 
 	
