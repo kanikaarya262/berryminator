@@ -225,41 +225,36 @@ def detect_berries(transformed_image, transformed_depth_image):
 	berries = ["Strawberry", "Blueberry", "Lemon"]
 
 	##############	ADD YOUR CODE HERE	##############
-	hsv = cv2.cvtColor(transformed_image,cv2.COLOR_BGR2HSV)
-	mask_blue = cv2.inRange(hsv,np.array([101, 39, 64]),np.array([140, 255, 255]))
-	mask_yellow = cv2.inRange(hsv,np.array([21, 39, 64]),np.array([40, 255, 255]))
-	mask_red = cv2.inRange(hsv, np.array([161, 39, 64]),np.array([180, 255, 255]))
-	img1gray = cv2.cvtColor(transformed_image,cv2.COLOR_BGR2GRAY)
-	ret, thresh = cv2.threshold(img1gray,40,255,cv2.THRESH_BINARY)
-	flag1,flag2,flag3 = 1,1,1
-	cont , hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	berries_dictionary = {berries[0]:[],berries[1]:[],berries[2]:[]}
+	hsv = cv2.cvtColor(transformed_image,cv2.COLOR_RGB2HSV)
+	mask_red = cv2.inRange(hsv,np.array([101, 39, 64]),np.array([140, 255, 255]))
+	mask_yellow = cv2.inRange(hsv,np.array([21, 39, 64]),np.array([100, 255, 255]))
+	mask_blue = cv2.inRange(hsv, np.array([0, 39, 64]),np.array([20, 255, 255]))
+	
+	cont, hierarchy = cv2.findContours(mask_red,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	for i in range(len(cont)):
+		 Cent = cv2.moments(cont[i])
+		 cx =int(Cent["m10"]/Cent["m00"])
+		 cy =int(Cent["m01"]/Cent["m00"])
+		 d = transformed_depth_image[cy][cx]	
+		 berries_dictionary[berries[0]].append((cx,cy,d))
+	cont, hierarchy = cv2.findContours(mask_blue,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	for i in range(len(cont)):
 		Cent = cv2.moments(cont[i])
 		cx =int(Cent["m10"]/Cent["m00"])
 		cy =int(Cent["m01"]/Cent["m00"])
-		if mask_blue[cy][cx]==255:
-			berry = berries[1]
-			if(flag1==1):
-					berries_dictionary[berry]= []
-					flag1 = 0
-		elif mask_yellow[cy][cx]==255:
-			berry = berries[2]
-			if(flag2==1):
-					berries_dictionary[berry]= []
-					flag2 = 0
-		elif mask_red[cy][cx]==255:
-			berry = berries[0]
-			if(flag3==1):
-					berries_dictionary[berry]= []
-					flag3 = 0
-		else:
-			print("Not able to detect")
-
 		d = transformed_depth_image[cy][cx]	
-		berries_dictionary[berry].append((cx,cy,d))
+		berries_dictionary[berries[1]].append((cx,cy,d))
+		
+	cont, hierarchy = cv2.findContours(mask_yellow,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	for i in range(len(cont)):
+		Cent = cv2.moments(cont[i])
+		cx =int(Cent["m10"]/Cent["m00"])
+		cy =int(Cent["m01"]/Cent["m00"])
+		d = transformed_depth_image[cy][cx]	
+		berries_dictionary[berries[2]].append((cx,cy,d))
 
 	
-
 		
 	
 	
@@ -301,11 +296,18 @@ def detect_berry_positions(berries_dictionary):
 			pix_x=i[0]
 			pix_y=i[1]
 			depth=i[2]
-			C_X=(0.5/256)*(pix_x-256)
-			C_Y=(0.5/256)*(pix_y-256)
-			C_Z=depth*2
-			lmodified.append((C_X,C_Y,C_Z))
+			C_X=(0.5/256)*(256 - pix_x)
+			C_Y=(0.5/256)*(256 - pix_y)
+			C_Z=round(depth*2,2)
+			r = (C_Z*100)%10
+			if(r<=5 and r>0):
+				m = 0.05 - (r*0.01)
+				C_Z = C_Z + m
+			else:
+				C_Z = round(depth*2,1)			
+			lmodified.append((round(C_X,2),round(C_Y,2),C_Z))
 		berry_positions_dictionary[keys]=lmodified
+		
 
 
 
