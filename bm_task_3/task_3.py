@@ -388,13 +388,15 @@ def set_bot_movement(client_id,wheel_joints,forw_back_vel,left_right_vel,rot_vel
 			sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
 			sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
 		elif joint==wheel_joints[2]:
-			sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
+			sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
 			sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
 		elif joint==wheel_joints[3]:
-			sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
+			sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
 			sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
 	
 	sim.simxPauseCommunication(client_id,False)
+
+
 	
 
 	##################################################
