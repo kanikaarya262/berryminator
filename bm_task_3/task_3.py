@@ -378,6 +378,23 @@ def set_bot_movement(client_id,wheel_joints,forw_back_vel,left_right_vel,rot_vel
 	"""
 
 	##############	ADD YOUR CODE HERE	##############
+	sim.simxPauseCommunication(client_id,True)
+	for joint in wheel_joints:
+		sim.simxSetJointTargetVelocity(client_id,joint,forw_back_vel,sim.simx_opmode_streaming)
+		if joint==wheel_joints[0]:
+			sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
+			sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
+		elif joint==wheel_joints[1]:
+			sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
+			sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
+		elif joint==wheel_joints[2]:
+			sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
+			sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
+		elif joint==wheel_joints[3]:
+			sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
+			sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
+	
+	sim.simxPauseCommunication(client_id,False)
 	
 
 	##################################################
@@ -408,6 +425,11 @@ def init_setup(client_id):
 	"""
 
 	##############	ADD YOUR CODE HERE	##############
+	front_left=sim.simxGetObjectHandle(client_id,'rollingJoint_fl',sim.simx_opmode_blocking)
+	front_right=sim.simxGetObjectHandle(client_id,'rollingJoint_fr',sim.simx_opmode_blocking)
+	rear_left=sim.simxGetObjectHandle(client_id,'rollingJoint_rl',sim.simx_opmode_blocking)
+	rear_right=sim.simxGetObjectHandle(client_id,'rollingJoint_rr',sim.simx_opmode_blocking)
+	wheel_joints=[front_left,front_right,rear_left,rear_right]
 
 	
 
