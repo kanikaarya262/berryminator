@@ -177,7 +177,10 @@ def get_vision_sensor_image(client_id):
 	return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_streaming)
 	while(return_code!=0):
 		return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_buffer)
+		
 	
+		
+
 
 
 	##################################################
@@ -358,7 +361,7 @@ def set_bot_movement(client_id,wheel_joints,forw_back_vel,left_right_vel,rot_vel
 	'wheel_joints`      :   [ list]
 		Python list containing joint object handles of individual joints
 
-	`forw_back_vel'     :   [ float ]
+	`forw_back_vel'     :   [ float ]sim.simxSetJointTargetVelocity(client_id,joints,left_right_vel,sim.simx_opmode_streaming)
 		Desired forward/back velocity of the bot
 
 	`left_right_vel'    :   [ float ]
@@ -381,23 +384,37 @@ def set_bot_movement(client_id,wheel_joints,forw_back_vel,left_right_vel,rot_vel
 	sim.simxPauseCommunication(client_id,True)
 	for joint in wheel_joints:
 		sim.simxSetJointTargetVelocity(client_id,joint,forw_back_vel,sim.simx_opmode_streaming)
-		if joint==wheel_joints[0]:
-			sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
-			sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
-		elif joint==wheel_joints[1]:
-			sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
-			sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
-		elif joint==wheel_joints[2]:
-			sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
-			sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
-		elif joint==wheel_joints[3]:
-			sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
-			sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
+		if left_right_vel!=0:
+			if joint==wheel_joints[0]:
+				sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
+			elif joint==wheel_joints[1]:
+				sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
+			elif joint==wheel_joints[2]:
+				sim.simxSetJointTargetVelocity(client_id,joint,-left_right_vel,sim.simx_opmode_streaming)
+			elif joint==wheel_joints[3]:
+				sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
+		elif rot_vel !=0:
+
+			if joint==wheel_joints[0]:
+				sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
+			elif joint==wheel_joints[1]:
+				sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
+			elif joint==wheel_joints[2]:
+				sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
+			elif joint==wheel_joints[3]:
+				sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
+
+
+
+
+			
+
 	
 	sim.simxPauseCommunication(client_id,False)
 
 
-	
+
+
 
 	##################################################
 
@@ -427,11 +444,13 @@ def init_setup(client_id):
 	"""
 
 	##############	ADD YOUR CODE HERE	##############
-	front_left=sim.simxGetObjectHandle(client_id,'rollingJoint_fl',sim.simx_opmode_blocking)
-	front_right=sim.simxGetObjectHandle(client_id,'rollingJoint_fr',sim.simx_opmode_blocking)
-	rear_left=sim.simxGetObjectHandle(client_id,'rollingJoint_rl',sim.simx_opmode_blocking)
-	rear_right=sim.simxGetObjectHandle(client_id,'rollingJoint_rr',sim.simx_opmode_blocking)
+	_1,front_left=sim.simxGetObjectHandle(client_id,'rollingJoint_fl',sim.simx_opmode_blocking)
+	_2,front_right=sim.simxGetObjectHandle(client_id,'rollingJoint_fr',sim.simx_opmode_blocking)
+	_3,rear_left=sim.simxGetObjectHandle(client_id,'rollingJoint_rl',sim.simx_opmode_blocking)
+	_4,rear_right=sim.simxGetObjectHandle(client_id,'rollingJoint_rr',sim.simx_opmode_blocking)
 	wheel_joints=[front_left,front_right,rear_left,rear_right]
+	
+
 
 	
 
@@ -482,12 +501,18 @@ def nav_logic():
 	"""
 
 
-def shortest_path():
+def shortest_path(currentpoints,finalpoints):
 	"""
 	Purpose:
 	---
 	This function should be used to find the shortest path on the given floor between the destination and source co-ordinates.
 	"""
+	hdis=currentpoints(0)-finalpoints(0)
+	vdis=currentpoints(1)-finalpoints(1)
+	shortest_dis=(hdis**2+vdis**2)**(0.5)
+	angle=math.atan(hdis/vdis)
+	return shortest_dis,angle
+
 
 
 def task_3_primary(client_id, target_points):
@@ -517,6 +542,22 @@ def task_3_primary(client_id, target_points):
 	target_points(client_id, target_points)
 	
 	"""
+	'''print("ab")
+	visionsensorimage,imageresolution,returncode=get_vision_sensor_image(client_id)
+	print(returncode)
+	transformed_image=transform_vision_sensor_image(visionsensorimage, imageresolution)
+	qrcode=detect_qr_codes(transformed_image)
+	print(qrcode)'''
+	vision_sensor_image, image_resolution, return_code=get_vision_sensor_image(client_id)
+	transformed_image=transform_vision_sensor_image(vision_sensor_image,image_resolution)
+	qrcode=detect_qr_codes(transformed_image)
+	print(qrcode)
+	wheels=init_setup(client_id)
+	set_bot_movement(client_id,wheels,0,0,2)
+	time.sleep(2)
+	
+
+	
 
 
 
@@ -624,3 +665,4 @@ if __name__ == "__main__":
 		traceback.print_exc(file=sys.stdout)
 		print()
 		sys.exit()
+	
