@@ -96,9 +96,7 @@ def init_remote_api_server():
 
 	##############	ADD YOUR CODE HERE	##############
 	sim.simxFinish(-1) # close open connections 
-	client_id=sim.simxStart('127.0.0.1',19997,True,True,5000,5) 
-
-
+	client_id=sim.simxStart('127.0.0.1',19997,True,True,5000,5)
 
 
 	##################################################
@@ -135,8 +133,6 @@ def start_simulation(client_id):
 	##############	ADD YOUR CODE HERE	##############
 	sim.simxGetPingTime(client_id)
 	return_code=sim.simxStartSimulation(client_id,sim.simx_opmode_oneshot)
-	
-
 
 	##################################################
 
@@ -177,10 +173,6 @@ def get_vision_sensor_image(client_id):
 	return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_streaming)
 	while(return_code!=0):
 		return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_buffer)
-		
-	
-		
-
 
 
 	##################################################
@@ -227,11 +219,6 @@ def transform_vision_sensor_image(vision_sensor_image, image_resolution):
 	rgbimg=cv2.cvtColor(transformed_image_2, cv2.COLOR_BGR2RGB)
 	transformed_image=cv2.flip(rgbimg, 0)
 
-	
-
-	
-
-
 
 
 	##################################################
@@ -267,7 +254,6 @@ def stop_simulation(client_id):
 
 	##############	ADD YOUR CODE HERE	##############
 	return_code=sim.simxStopSimulation(client_id,sim.simx_opmode_oneshot)
-	
 
 	##################################################
 
@@ -300,9 +286,6 @@ def exit_remote_api_server(client_id):
 	##############	ADD YOUR CODE HERE	##############
 	sim.simxGetLastCmdTime(client_id)
 	sim.simxFinish(client_id)
-	
-
-	
 
 	##################################################
 
@@ -336,7 +319,6 @@ def detect_qr_codes(transformed_image):
 	for qr in qrdetected:
 		qrdata = qr.data.decode("utf-8")
 		qr_codes.append(qrdata)
-
 	
 
 	##################################################
@@ -361,7 +343,7 @@ def set_bot_movement(client_id,wheel_joints,forw_back_vel,left_right_vel,rot_vel
 	'wheel_joints`      :   [ list]
 		Python list containing joint object handles of individual joints
 
-	`forw_back_vel'     :   [ float ]sim.simxSetJointTargetVelocity(client_id,joints,left_right_vel,sim.simx_opmode_streaming)
+	`forw_back_vel'     :   [ float ]
 		Desired forward/back velocity of the bot
 
 	`left_right_vel'    :   [ float ]
@@ -403,18 +385,8 @@ def set_bot_movement(client_id,wheel_joints,forw_back_vel,left_right_vel,rot_vel
 				sim.simxSetJointTargetVelocity(client_id,joint,rot_vel,sim.simx_opmode_streaming)
 			elif joint==wheel_joints[3]:
 				sim.simxSetJointTargetVelocity(client_id,joint,-rot_vel,sim.simx_opmode_streaming)
-
-
-
-
-			
-
-	
 	sim.simxPauseCommunication(client_id,False)
-
-
-
-
+	
 
 	##################################################
 
@@ -449,10 +421,7 @@ def init_setup(client_id):
 	_3,rear_left=sim.simxGetObjectHandle(client_id,'rollingJoint_rl',sim.simx_opmode_blocking)
 	_4,rear_right=sim.simxGetObjectHandle(client_id,'rollingJoint_rr',sim.simx_opmode_blocking)
 	wheel_joints=[front_left,front_right,rear_left,rear_right]
-	
 
-
-	
 
 	##################################################
 
@@ -499,6 +468,7 @@ def nav_logic():
 	---
 	This function should implement your navigation logic. 
 	"""
+	
 
 
 def shortest_path(currentpoints,finalpoints):
@@ -507,13 +477,21 @@ def shortest_path(currentpoints,finalpoints):
 	---
 	This function should be used to find the shortest path on the given floor between the destination and source co-ordinates.
 	"""
-	hdis=currentpoints(0)-finalpoints(0)
-	vdis=currentpoints(1)-finalpoints(1)
+	hdis=currentpoints[0]-finalpoints[0]
+	vdis=currentpoints[1]-finalpoints[1]
 	shortest_dis=(hdis**2+vdis**2)**(0.5)
-	angle=math.atan(hdis/vdis)
+	angle=8*math.atan(hdis/vdis)
+
 	return shortest_dis,angle
 
-
+def avg_list(list):
+	sum = 0
+	for i in list:
+		if i < 0:
+			sum = sum - i
+		else:
+			sum = sum + i
+	return sum/4			
 
 def task_3_primary(client_id, target_points):
 	
@@ -542,22 +520,25 @@ def task_3_primary(client_id, target_points):
 	target_points(client_id, target_points)
 	
 	"""
-	'''print("ab")
-	visionsensorimage,imageresolution,returncode=get_vision_sensor_image(client_id)
-	print(returncode)
-	transformed_image=transform_vision_sensor_image(visionsensorimage, imageresolution)
-	qrcode=detect_qr_codes(transformed_image)
-	print(qrcode)'''
-	vision_sensor_image, image_resolution, return_code=get_vision_sensor_image(client_id)
-	transformed_image=transform_vision_sensor_image(vision_sensor_image,image_resolution)
-	qrcode=detect_qr_codes(transformed_image)
-	print(qrcode)
-	wheels=init_setup(client_id)
-	set_bot_movement(client_id,wheels,0,0,2)
-	time.sleep(2)
 	
+	wheels=init_setup(client_id)
+	jp = encoders(client_id)
+	set_bot_movement(client_id,wheels,0,0,0.5)
+	
+	dist,angle = shortest_path((0,0),(2,5))
+	sumjp = avg_list(jp)
+	error = (0.25*angle)/100
+	while(True):
+		if((sumjp<=(angle + error) and sumjp>=(angle - error))):
+			set_bot_movement(client_id,wheels,2,0,0)
+
+			break
+		else:
+			jp = encoders(client_id)
+			sumjp = avg_list(jp)
 
 	
+
 
 
 
@@ -665,4 +646,3 @@ if __name__ == "__main__":
 		traceback.print_exc(file=sys.stdout)
 		print()
 		sys.exit()
-	
