@@ -464,12 +464,97 @@ def encoders(client_id):
 	return joints_position
 
 
-def nav_logic():
+
+
+def nav_logic(client_id, target_points):
 	"""
 	Purpose:
 	---
 	This function should implement your navigation logic. 
 	"""
+	wheels = init_setup(client_id)
+	sp = (0,0)
+	past_angle = encoders(client_id)
+	# past_angle = 0
+	for p in target_points:
+		
+		ep = p
+		dist,angle = shortest_path(sp,ep)
+		rot_angle = angle - past_angle[0]
+		
+		if rot_angle>0:
+			speed=0.5
+		elif rot_angle<0:
+			speed=-0.5
+
+		else:
+			speed=0
+		jp = encoders(client_id)
+		error =  []
+		orientation = []
+		for i in jp :
+			orientation.append(rot_angle + i)
+			error.append((0.22*(rot_angle+i))/100)
+		set_bot_movement(client_id,wheels,0,0,speed)
+		while(True):
+			if(jp[0]<(orientation[0]+error[0]) and jp[0]>(orientation[0]-error[0])):
+				set_bot_movement(client_id,wheels,2,0,0)
+				break
+			else:
+				jp = encoders(client_id)
+
+		image,resolution,return_code = get_vision_sensor_image(client_id)
+		timage = transform_vision_sensor_image(image,resolution)
+		cpoints = detect_qr_codes(timage)		
+		print(cpoints)
+		while(True):
+			if(cpoints==[ep]):
+				set_bot_movement(client_id,wheels,0,0,0)
+				break
+			else:
+				image,resolution,return_code = get_vision_sensor_image(client_id)
+				timage = transform_vision_sensor_image(image,resolution)
+				cpoints = detect_qr_codes(timage)
+				print(cpoints)
+				# flag = 0
+				# if(len(cpoints)==1 and cpoints!=[ep]):
+				# 	set_bot_movement(client_id,wheels,0,0,0)
+				# 	temp_dist,temp_angle = shortest_path(cpoints[0],ep)
+				# 	temp_rot_angle = temp_angle - angle
+				# 	if temp_rot_angle>0:
+				# 		temp_speed=0.5
+				# 	elif temp_rot_angle<0:
+				# 		temp_speed=-0.5
+
+				# 	else:
+						
+				# 		flag = 1
+					
+				# 	temp_jp = encoders(client_id)
+				# 	temp_error =  []
+				# 	temp_orientation = []
+				# 	for i in temp_jp :
+				# 		temp_orientation.append(rot_angle + i)
+				# 		temp_error.append((0.3*(rot_angle+i))/100)
+				# 	if(flag==0):		
+				# 		set_bot_movement(client_id,wheels,0,0,temp_speed)
+				# 	else:
+				# 		set_bot_movement(client_id,wheels,2,0,0)	
+				# 	while(True):
+				# 		if(temp_jp[0]<(temp_orientation[0]+temp_error[0]) and temp_jp[0]>(temp_orientation[0]-temp_error[0])):
+				# 			set_bot_movement(client_id,wheels,2,0,0)
+				# 			break
+				# 		else:
+				# 			temp_jp = encoders(client_id)
+
+
+				
+		past_angle = [angle]
+		sp = ep
+
+
+
+
 	
 
 
@@ -532,77 +617,85 @@ def task_3_primary(client_id, target_points):
 	target_points(client_id, target_points)
 	
 	"""
-	target_points = [(2,3),(3,6),(11,11),(0,0)]
-	wheels=init_setup(client_id)
-	jp = encoders(client_id)
-	set_bot_movement(client_id,wheels,0,0,0.5)
+	nav_logic(client_id,target_points)
+	# target_points = [(2,3),(3,6),(8,11),(0,0)]
+	# wheels=init_setup(client_id)
+	# jp = encoders(client_id)
+	# set_bot_movement(client_id,wheels,0,0,1.5)
 	
-	dist,angle = shortest_path((0,0),(2,5))
-	sumjp = avg_list(jp)
-	error = (0.25*angle)/100
-	while(True):
-		if((sumjp<=(angle + error) and sumjp>=(angle - error))):
-			set_bot_movement(client_id,wheels,2,0,0)
-			past_avg_jp = sumjp
-			past_angle = angle
-			break
-		else:
-			jp = encoders(client_id)
-			sumjp = avg_list(jp)
+	# dist,angle = shortest_path((0,0),(2,5))
+	# sumjp = avg_list(jp)
+	# error = (0.25*angle)/100
+	# while(True):
+	# 	if((sumjp<=(angle + error) and sumjp>=(angle - error))):
+	# 		set_bot_movement(client_id,wheels,5,0,0)
+	# 		past_avg_jp = sumjp
+	# 		past_angle = angle
+	# 		break
+	# 	else:
+	# 		jp = encoders(client_id)
+	# 		sumjp = avg_list(jp)
 			
-	past_jp=jp
+	# past_jp=jp
 			
-	image,resolution,return_code = get_vision_sensor_image(client_id)
-	timage = transform_vision_sensor_image(image,resolution)
-	cpoints = detect_qr_codes(timage)
-	print(cpoints)
+	# image,resolution,return_code = get_vision_sensor_image(client_id)
+	# timage = transform_vision_sensor_image(image,resolution)
+	# cpoints = detect_qr_codes(timage)
+	# print(cpoints)
 
-	while(True):
-		if(cpoints==[(2, 5)]):
-			set_bot_movement(client_id,wheels,0,0,0)
-			current_jp = encoders(client_id)
-			break
-		else:
-			image,resolution,return_code = get_vision_sensor_image(client_id)
-			timage = transform_vision_sensor_image(image,resolution)
-			cpoints = detect_qr_codes(timage)
-			print(cpoints)
+	# while(True):
+	# 	if(cpoints==[(2, 5)]):
+	# 		set_bot_movement(client_id,wheels,0,0,0)
+	# 		current_jp = encoders(client_id)
+	# 		break
+	# 	else:
+	# 		image,resolution,return_code = get_vision_sensor_image(client_id)
+	# 		timage = transform_vision_sensor_image(image,resolution)
+	# 		cpoints = detect_qr_codes(timage)
+	# 		print(cpoints)
 			
 
 
 	
 
 
-	dist,angle = shortest_path((2,5),(4,11))
-	new_angle = angle - past_angle
-	jp = encoders(client_id)
-	print(new_angle)
-	orientation,error = bot_orientation(new_angle,jp)
-	print(orientation)
-	print(jp)
+	# dist,angle = shortest_path((2,5),(4,11))
+	# new_angle = angle - past_angle
+	# if new_angle>0:
+	# 	speed=2
+	# elif new_angle<0:
+	# 	speed=-2
+
+	# else:
+	# 	speed=0
+	# jp = encoders(client_id)
+	# print(new_angle)
+	# orientation,error = bot_orientation(new_angle,jp)
+	# print(orientation)
+	# print(jp)
 	
 	
-	set_bot_movement(client_id,wheels,0,0,-1)
-	while(True):
-		if(jp[0]<(orientation[0]+error[0]) and jp[0]>(orientation[0]-error[0])):
-			set_bot_movement(client_id,wheels,1.5,0,0)
+	# set_bot_movement(client_id,wheels,0,0,speed)
+	# while(True):
+	# 	if(jp[0]<(orientation[0]+error[0]) and jp[0]>(orientation[0]-error[0])):
+	# 		set_bot_movement(client_id,wheels,5,0,0)
 			
-			break
-		else:
-			jp = encoders(client_id)
-			print(jp)
+	# 		break
+	# 	else:
+	# 		jp = encoders(client_id)
+	# 		print(jp)
 			
 
 			
 
-	while(True):
-		if(cpoints==[(4, 11)]):
-			set_bot_movement(client_id,wheels,0,0,0)
-			break
-		else:
-			image,resolution,return_code = get_vision_sensor_image(client_id)
-			timage = transform_vision_sensor_image(image,resolution)
-			cpoints = detect_qr_codes(timage)
+	# while(True):
+	# 	if(cpoints==[(4, 11)]):
+	# 		set_bot_movement(client_id,wheels,0,0,0)
+	# 		break
+	# 	else:
+	# 		image,resolution,return_code = get_vision_sensor_image(client_id)
+	# 		timage = transform_vision_sensor_image(image,resolution)
+	# 		cpoints = detect_qr_codes(timage)
 
 	
 
@@ -615,7 +708,7 @@ if __name__ == "__main__":
 	# target_points is a list of tuples. These tuples are the target navigational co-ordinates
 	# target_points = [(x1,y1),(x2,y2),(x3,y3),(x4,y4)...]
 	# example:
-	target_points = [(2,3),(3,6),(11,11),(0,0)]    # You can give any number of different co-ordinates
+	target_points = [(2,3),(3,7),(0,0),(2,5)]    # You can give any number of different co-ordinates
 
 
 	##################################################
