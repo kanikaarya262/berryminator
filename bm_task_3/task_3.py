@@ -1,5 +1,5 @@
 '''
-*****************************************************************************************
+*******************************
 *
 *        		===============================================
 *           		Berryminator (BM) Theme (eYRC 2021-22)
@@ -13,7 +13,7 @@
 *  breach of the terms of this agreement.
 *  
 *
-*****************************************************************************************
+*******************************
 '''
 
 
@@ -172,7 +172,7 @@ def get_vision_sensor_image(client_id):
 	_,sensor = sim.simxGetObjectHandle(client_id,'vision_sensor_1',sim.simx_opmode_blocking)
 	return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_streaming)
 	while(return_code!=0):
-		return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_buffer)
+		return_code,image_resolution,vision_sensor_image = sim.simxGetVisionSensorImage(client_id,sensor,0,sim.simx_opmode_blocking)
 
 
 	##################################################
@@ -318,6 +318,7 @@ def detect_qr_codes(transformed_image):
 	qrdetected = decode(image)
 	for qr in qrdetected:
 		qrdata = qr.data.decode("utf-8")
+		qrdata = eval(qrdata)
 		qr_codes.append(qrdata)
 	
 
@@ -367,6 +368,7 @@ def set_bot_movement(client_id,wheel_joints,forw_back_vel,left_right_vel,rot_vel
 	for joint in wheel_joints:
 		sim.simxSetJointTargetVelocity(client_id,joint,forw_back_vel,sim.simx_opmode_streaming)
 		if left_right_vel!=0:
+
 			if joint==wheel_joints[0]:
 				sim.simxSetJointTargetVelocity(client_id,joint,left_right_vel,sim.simx_opmode_streaming)
 			elif joint==wheel_joints[1]:
@@ -462,13 +464,79 @@ def encoders(client_id):
 	return joints_position
 
 
-def nav_logic():
+def nav_logic(client_id,target_point):
 	"""
 	Purpose:
 	---
 	This function should implement your navigation logic. 
 	"""
+	print(target_point)
+	wheels=init_setup(client_id)
+	vision_sensor_image,imageresolution,return_code=get_vision_sensor_image(client_id)
+	transformed_image=transform_vision_sensor_image(vision_sensor_image,imageresolution)
+	current_points=detect_qr_codes(transformed_image)
+	print(current_points)
+	shortest_dis,angle=shortest_path(current_points[0],target_point)
+	print(angle)
+	joint_position_current=encoders(client_id)
+	average_current_joint=joint_position_current[0]
+	initial_bot_angle=joint_to_angle(average_current_joint)
+	print(initial_bot_angle)
+	rotation_angle=angle-initial_bot_angle
+	print(rotation_angle)
+	joint_position_final=angle_to_joint_rotation(rotation_angle,joint_position_current[0])
+	average_joint_position_final=joint_position_final
+	error=(1.15*average_joint_position_final)/100
+	if rotation_angle>0:
+		speed=2
+	elif rotation_angle<0:
+		speed=-2
+
+	else:
+		speed=0
+	print(speed)
+	print(average_current_joint)
+	print(average_joint_position_final)
+	set_bot_movement(client_id,wheels,0,0,speed)
+	while True:
+
+		if average_current_joint<=average_joint_position_final+error and average_current_joint>=average_joint_position_final-error:
+			set_bot_movement(client_id,wheels,0,0,0)
+			print(average_current_joint)
+			break
+		
+		else:
+
+			
+			joint_position_current=encoders(client_id)
+			average_current_joint=joint_position_current[0]
+			print(average_current_joint)
+		
+	time.sleep(2)
+	set_bot_movement(client_id,wheels,3,0,0)
+	print(target_point)
+
+
+
+
+	while True:
 	
+		if current_points== [target_point]:
+			set_bot_movement(client_id,wheels,0,0,0)
+			break
+
+		else:
+			print("ab")
+
+			vision_sensor_image,imageresolution,return_code=get_vision_sensor_image(client_id)
+			transformed_image=transform_vision_sensor_image(vision_sensor_image,imageresolution)
+			current_points=detect_qr_codes(transformed_image)
+			print(current_points)
+
+	
+	
+
+
 
 
 def shortest_path(currentpoints,finalpoints):
@@ -480,18 +548,18 @@ def shortest_path(currentpoints,finalpoints):
 	hdis=currentpoints[0]-finalpoints[0]
 	vdis=currentpoints[1]-finalpoints[1]
 	shortest_dis=(hdis**2+vdis**2)**(0.5)
-	angle=8*math.atan(hdis/vdis)
+	angle=math.atan(hdis/vdis)
 
 	return shortest_dis,angle
+def angle_to_joint_rotation(angle,average_current_joint):
 
-def avg_list(list):
-	sum = 0
-	for i in list:
-		if i < 0:
-			sum = sum - i
-		else:
-			sum = sum + i
-	return sum/4			
+	joint_angle=8*angle+average_current_joint
+	return joint_angle
+def joint_to_angle(joint_angle):
+	
+	return joint_angle/8
+
+	
 
 def task_3_primary(client_id, target_points):
 	
@@ -520,7 +588,10 @@ def task_3_primary(client_id, target_points):
 	target_points(client_id, target_points)
 	
 	"""
-	
+	for points in target_points:
+		nav_logic(client_id,points)
+
+	"""
 	wheels=init_setup(client_id)
 	jp = encoders(client_id)
 	set_bot_movement(client_id,wheels,0,0,0.5)
@@ -530,15 +601,57 @@ def task_3_primary(client_id, target_points):
 	error = (0.25*angle)/100
 	while(True):
 		if((sumjp<=(angle + error) and sumjp>=(angle - error))):
-			set_bot_movement(client_id,wheels,2,0,0)
+			set_bot_movement(client_id,wheels,3,0,0)
+			# past_jp
+			break
+		else:
+			jp = encoders(client_id)
+			sumjp = avg_list(jp)
+
+			
+	image,resolution,return_code = get_vision_sensor_image(client_id)
+	timage = transform_vision_sensor_image(image,resolution)
+	cpoints = detect_qr_codes(timage)
+	print(cpoints)
+
+	while(True):
+		if(cpoints==[(2, 5)]):
+			set_bot_movement(client_id,wheels,0,0,0)
+			current_jp = encoders(client_id)
+			break
+		else:
+			image,resolution,return_code = get_vision_sensor_image(client_id)
+			timage = transform_vision_sensor_image(image,resolution)
+			cpoints = detect_qr_codes(timage)
+			print(cpoints)
+			
+
+
+		
+	dist,angle = shortest_path((2,5),(4,9))
+	sumjp = avg_list(jp)
+	error = (0.25*angle)/100
+	set_bot_movement(client_id,wheels,0,0,1)
+	while(True):
+		if((sumjp<=(angle + error) and sumjp>=(angle - error))):
+			set_bot_movement(client_id,wheels,1.5,0,0)
 
 			break
 		else:
 			jp = encoders(client_id)
 			sumjp = avg_list(jp)
 
-	
+	while(True):
+		if(cpoints[0]==(4,9)):
+			set_bot_movement(client_id,wheels,0,0,0)
+			break
+		else:
+			image,resolution,return_code = get_vision_sensor_image(client_id)
+			timage = transform_vision_sensor_image(image,resolution)
+			cpoints = detect_qr_codes(timage)
 
+	
+"""
 
 
 
